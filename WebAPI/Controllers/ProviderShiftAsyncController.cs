@@ -1,6 +1,8 @@
 using Marten;
+using Marten.Events.Daemon;
 using Microsoft.AspNetCore.Mvc;
 using Project;
+using Project.Projections;
 using Project.ProviderShift;
 
 namespace WebAPI.Controllers;
@@ -32,11 +34,28 @@ public class ProviderShiftAsyncController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> Get(Guid shiftId)
+    public async Task<IActionResult> Get(Guid shiftId, long? version)
     {
         var session = _documentStore.LightweightSession();
-        var shift = await session.Events.AggregateStreamAsync<ProviderShiftAsync>(shiftId);
+        ProviderShiftAsync? shift;
+        if (version.HasValue)
+        {
+            shift = await session.Events.AggregateStreamAsync<ProviderShiftAsync>(shiftId, version: version.Value);
+        }
+        else
+        {
+            shift = await session.Events.AggregateStreamAsync<ProviderShiftAsync>(shiftId);
+        }
+
         if (shift == null) return NotFound();
         return Ok(shift);
+    }
+
+    [HttpPost("reset-data")]
+    public async Task<IActionResult> ResetProjections()
+    {
+        var daemon = await _documentStore.BuildProjectionDaemonAsync();
+        await daemon.RebuildProjection<AnotherProjection>(CancellationToken.None);
+        return NoContent();
     }
 }

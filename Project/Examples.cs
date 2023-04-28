@@ -35,7 +35,7 @@ public class Examples : IClassFixture<ServicesFixture>
             new ProviderJoined(boardId, KnownProvider1),
             new ProviderReady()
         );
-
+        
         await _session.SaveChangesAsync();
     }
 

@@ -3,7 +3,6 @@ namespace Project.ProviderShift;
 public class ProviderShiftLive
 {
     public Guid Id { get; set; }
-
     public int Version { get; set; }
     public Guid BoardId { get; protected set; }
     public Guid ProviderId { get; init; }
@@ -11,9 +10,7 @@ public class ProviderShiftLive
     public string Name { get; init; }
     public Guid? AppointmentId { get; set; }
 
-    // More here in just a minute...
-
-    public static async Task<ProviderShiftLive> Create(ProviderJoined joined)
+    public static ProviderShiftLive Create(ProviderJoined joined)
     {
         return new ProviderShiftLive
         {
@@ -36,9 +33,6 @@ public class ProviderShiftLive
         Status = ProviderStatus.Assigned;
     }
 
-    // This is kind of a catch all for any paperwork
-    // the provider has to do after an appointment
-    // for the just concluded appointment
     public void Apply(ChartingStarted charting)
     {
         Status = ProviderStatus.Charting;
