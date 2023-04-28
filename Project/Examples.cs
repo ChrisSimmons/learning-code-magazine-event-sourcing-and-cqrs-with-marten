@@ -1,3 +1,4 @@
+using FluentAssertions;
 using Marten;
 using Project.Aggregates;
 
@@ -39,4 +40,28 @@ public class Examples : IClassFixture<ServicesFixture>
         await _session.SaveChangesAsync();
     }
 
+    [Fact]
+    public async Task access_live_aggregation()
+    {
+        // We need to dictate the shift ID if we are to look it up later in the test
+        var shiftId = Guid.NewGuid();
+
+        _session.Events.StartStream<ProviderShift>(shiftId,
+            new ProviderJoined(Guid.NewGuid(), KnownProvider1),
+            new ProviderReady()
+        );
+
+        await _session.SaveChangesAsync();
+
+        var querySession = _fixture.MartenDocumentStore.QuerySession();
+
+        // Fetch all the events for the stream, and
+        // apply them to a ProviderShift aggregate
+        var shift = await querySession
+            .Events
+            .AggregateStreamAsync<ProviderShift>(shiftId);
+
+        shift.Version.Should().Be(2);
+        shift.ProviderId.Should().Be(KnownProvider1);
+    }
 }
