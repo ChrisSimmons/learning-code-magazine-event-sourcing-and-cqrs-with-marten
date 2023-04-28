@@ -1,4 +1,4 @@
-namespace Project.Aggregates;
+namespace Project.ProviderShift;
 
 public enum ProviderStatus
 {

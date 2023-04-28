@@ -1,4 +1,5 @@
 ﻿using Marten;
+using Marten.Events.Projections;
 using Microsoft.Extensions.DependencyInjection;
 using Weasel.Core;
 
@@ -19,6 +20,11 @@ public class ServicesFixture
         {
             opts.Connection(ConnectionString); 
             opts.AutoCreateSchemaObjects = AutoCreate.All;
+            
+            opts.Projections.SelfAggregate<ProviderShift.ProviderShiftLive>
+                (ProjectionLifecycle.Live);
+            opts.Projections.SelfAggregate<ProviderShift.ProviderShiftInline>
+                (ProjectionLifecycle.Inline);
         });
 
         _serviceProvider = services.BuildServiceProvider();

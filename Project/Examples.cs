@@ -1,6 +1,5 @@
 using FluentAssertions;
 using Marten;
-using Project.Aggregates;
 
 namespace Project;
 
@@ -32,7 +31,7 @@ public class Examples : IClassFixture<ServicesFixture>
         // This would be an input
         var boardId = Guid.NewGuid();
 
-        _session.Events.StartStream<ProviderShift>(
+        _session.Events.StartStream<ProviderShift.ProviderShiftLive>(
             new ProviderJoined(boardId, KnownProvider1),
             new ProviderReady()
         );
@@ -41,13 +40,35 @@ public class Examples : IClassFixture<ServicesFixture>
     }
 
     [Fact]
-    public async Task access_live_aggregation()
+    public async Task AccessLiveAggregation()
     {
         // We need to dictate the shift ID if we are to look it up later in the test
-        var shiftId = Guid.NewGuid();
-
-        _session.Events.StartStream<ProviderShift>(shiftId,
+        var createdShiftStream = _session.Events.StartStream<ProviderShift.ProviderShiftLive>(
             new ProviderJoined(Guid.NewGuid(), KnownProvider1),
+            new ProviderReady()
+        );
+        
+        await _session.SaveChangesAsync();
+
+        var querySession = _fixture.MartenDocumentStore.QuerySession();
+
+        // Fetch all the events for the stream, and
+        // apply them to a ProviderShift aggregate
+        var queriedShift = await querySession
+            .Events
+            .AggregateStreamAsync<ProviderShift.ProviderShiftLive>(createdShiftStream.Id);
+
+        queriedShift.Version.Should().Be(2);
+        queriedShift.ProviderId.Should().Be(KnownProvider1);
+    }
+    
+    
+    [Fact]
+    public async Task AccessInlineAggregation()
+    {
+        var createdShiftStream =
+           _session.Events.StartStream<ProviderShift.ProviderShiftInline>(
+            new ProviderJoined(Guid.NewGuid(), KnownProvider2),
             new ProviderReady()
         );
 
@@ -55,13 +76,11 @@ public class Examples : IClassFixture<ServicesFixture>
 
         var querySession = _fixture.MartenDocumentStore.QuerySession();
 
-        // Fetch all the events for the stream, and
-        // apply them to a ProviderShift aggregate
-        var shift = await querySession
-            .Events
-            .AggregateStreamAsync<ProviderShift>(shiftId);
+        // Load the persisted ProviderShift right out of the database
+        var shift = await querySession.LoadAsync<ProviderShift.ProviderShiftInline>(createdShiftStream.Id);
 
         shift.Version.Should().Be(2);
-        shift.ProviderId.Should().Be(KnownProvider1);
+        shift.ProviderId.Should().Be(KnownProvider2);
     }
+
 }

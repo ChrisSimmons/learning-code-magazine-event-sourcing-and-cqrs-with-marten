@@ -1,23 +1,23 @@
-namespace Project.Aggregates;
+namespace Project.ProviderShift;
 
-public class ProviderShift
+public class ProviderShiftLive
 {
     public Guid Id { get; set; }
 
     public int Version { get; set; }
-    public Guid BoardId { get; private set; }
+    public Guid BoardId { get; protected set; }
     public Guid ProviderId { get; init; }
-    public ProviderStatus Status { get; private set; }
+    public ProviderStatus Status { get; protected set; }
     public string Name { get; init; }
     public Guid? AppointmentId { get; set; }
 
     // More here in just a minute...
 
-    public static async Task<ProviderShift> Create(ProviderJoined joined)
+    public static async Task<ProviderShiftLive> Create(ProviderJoined joined)
     {
         //var p = await session.LoadAsync<Provider>(joined.ProviderId);
 
-        return new ProviderShift
+        return new ProviderShiftLive
         {
             Name = $"{"ProviderFN"} {"ProviderLN"}",
             Status = ProviderStatus.Ready,
