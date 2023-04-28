@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using FluentAssertions;
 using Marten;
 

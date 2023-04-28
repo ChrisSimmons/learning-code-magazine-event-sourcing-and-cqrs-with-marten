@@ -1,9 +1,4 @@
-using Marten;
-using Marten.Events.Daemon.Resiliency;
-using Marten.Events.Projections;
 using Project;
-using Project.ProviderShift;
-using Weasel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 

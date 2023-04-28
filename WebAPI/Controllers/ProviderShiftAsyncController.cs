@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Marten;
 using Microsoft.AspNetCore.Mvc;
 using Project;
@@ -36,7 +35,7 @@ public class ProviderShiftAsyncController : ControllerBase
     public async Task<IActionResult> Get(Guid shiftId)
     {
         var session = _documentStore.LightweightSession();
-        var shift = await session.LoadAsync<ProviderShiftAsync>(shiftId);
+        var shift = await session.Events.AggregateStreamAsync<ProviderShiftAsync>(shiftId);
         if (shift == null) return NotFound();
         return Ok(shift);
     }

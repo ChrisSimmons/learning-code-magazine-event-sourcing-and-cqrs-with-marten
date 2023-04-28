@@ -1,5 +1,4 @@
-﻿using System.Reflection.Metadata;
-using Marten;
+﻿using Marten;
 using Marten.Events.Daemon.Resiliency;
 using Marten.Events.Projections;
 using Microsoft.Extensions.DependencyInjection;
