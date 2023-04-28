@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using FluentAssertions;
 using Marten;
 
@@ -47,7 +48,7 @@ public class Examples : IClassFixture<ServicesFixture>
             new ProviderJoined(Guid.NewGuid(), KnownProvider1),
             new ProviderReady()
         );
-        
+
         await _session.SaveChangesAsync();
 
         var querySession = _fixture.MartenDocumentStore.QuerySession();
@@ -61,16 +62,15 @@ public class Examples : IClassFixture<ServicesFixture>
         queriedShift.Version.Should().Be(2);
         queriedShift.ProviderId.Should().Be(KnownProvider1);
     }
-    
-    
+
     [Fact]
     public async Task AccessInlineAggregation()
     {
         var createdShiftStream =
-           _session.Events.StartStream<ProviderShift.ProviderShiftInline>(
-            new ProviderJoined(Guid.NewGuid(), KnownProvider2),
-            new ProviderReady()
-        );
+            _session.Events.StartStream<ProviderShift.ProviderShiftInline>(
+                new ProviderJoined(Guid.NewGuid(), KnownProvider2),
+                new ProviderReady()
+            );
 
         await _session.SaveChangesAsync();
 
@@ -83,4 +83,22 @@ public class Examples : IClassFixture<ServicesFixture>
         shift.ProviderId.Should().Be(KnownProvider2);
     }
 
+
+    [Fact]
+    public async Task AsyncAggregation()
+    {
+        _session.Events.StartStream<ProviderShift.ProviderShiftAsync>(
+            new ProviderJoined(Guid.NewGuid(), KnownProvider2),
+            new ProviderReady()
+        );
+
+        await _session.SaveChangesAsync();
+        
+        var allProgress = await _fixture.MartenDocumentStore.Advanced.AllProjectionProgress();
+
+        foreach (var shardState in allProgress)
+        {
+            Debugger.Break();
+        }
+    }
 }

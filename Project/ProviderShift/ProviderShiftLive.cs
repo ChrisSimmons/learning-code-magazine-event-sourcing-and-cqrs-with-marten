@@ -15,8 +15,6 @@ public class ProviderShiftLive
 
     public static async Task<ProviderShiftLive> Create(ProviderJoined joined)
     {
-        //var p = await session.LoadAsync<Provider>(joined.ProviderId);
-
         return new ProviderShiftLive
         {
             Name = $"{"ProviderFN"} {"ProviderLN"}",

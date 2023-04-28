@@ -1,11 +1,11 @@
 namespace Project.ProviderShift;
 
 // There's no difference here between 
-public class ProviderShiftInline : ProviderShiftLive
+public class ProviderShiftAsync : ProviderShiftLive
 {
-    public static async Task<ProviderShiftInline> Create(ProviderJoined joined)
+    public static async Task<ProviderShiftAsync> Create(ProviderJoined joined)
     {
-        return new ProviderShiftInline
+        return new ProviderShiftAsync
         {
             Name = $"{"ProviderFN"} {"ProviderLN"}",
             Status = ProviderStatus.Ready,
