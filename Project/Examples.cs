@@ -82,23 +82,4 @@ public class Examples : IClassFixture<ServicesFixture>
         shift.Version.Should().Be(2);
         shift.ProviderId.Should().Be(KnownProvider2);
     }
-
-
-    [Fact]
-    public async Task AsyncAggregation()
-    {
-        _session.Events.StartStream<ProviderShift.ProviderShiftAsync>(
-            new ProviderJoined(Guid.NewGuid(), KnownProvider2),
-            new ProviderReady()
-        );
-
-        await _session.SaveChangesAsync();
-        
-        var allProgress = await _fixture.MartenDocumentStore.Advanced.AllProjectionProgress();
-
-        foreach (var shardState in allProgress)
-        {
-            Debugger.Break();
-        }
-    }
 }

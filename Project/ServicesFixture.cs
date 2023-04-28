@@ -1,4 +1,5 @@
-﻿using Marten;
+﻿using System.Reflection.Metadata;
+using Marten;
 using Marten.Events.Daemon.Resiliency;
 using Marten.Events.Projections;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,18 +7,15 @@ using Weasel.Core;
 
 namespace Project;
 
-public class ServicesFixture : IAsyncLifetime
+public static class ServicesExtensions
 {
-    private readonly ServiceProvider _serviceProvider;
-
-    public const string ConnectionString =
+    private const string ConnectionString =
         "Host=localhost;Port=5432;Database=event_sourcing_cqrs_marten;Username=postgres;Password=postgres;";
 
-    public ServicesFixture()
+    public static MartenServiceCollectionExtensions.MartenConfigurationExpression AddExampleMarten(
+        this IServiceCollection services)
     {
-        IServiceCollection services = new ServiceCollection();
-
-        services.AddMarten(opts =>
+        var result = services.AddMarten(opts =>
         {
             opts.Connection(ConnectionString);
             opts.AutoCreateSchemaObjects = AutoCreate.All;
@@ -28,8 +26,23 @@ public class ServicesFixture : IAsyncLifetime
                 (ProjectionLifecycle.Inline);
             opts.Projections.SelfAggregate<ProviderShift.ProviderShiftAsync>
                 (ProjectionLifecycle.Async);
-        }).AddAsyncDaemon(DaemonMode.HotCold);
+        });
+        
+        result.AddAsyncDaemon(DaemonMode.HotCold);
 
+        return result;
+    }
+    
+}
+
+public class ServicesFixture : IAsyncLifetime
+{
+    private readonly ServiceProvider _serviceProvider;
+
+    public ServicesFixture()
+    {
+        IServiceCollection services = new ServiceCollection();
+        services.AddExampleMarten();
         _serviceProvider = services.BuildServiceProvider();
         MartenDocumentStore = _serviceProvider.GetRequiredService<IDocumentStore>();
     }

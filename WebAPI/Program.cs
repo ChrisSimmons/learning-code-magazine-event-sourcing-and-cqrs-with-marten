@@ -14,15 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddMarten(opts =>
-{
-    opts.Connection(ServicesFixture.ConnectionString);
-    opts.AutoCreateSchemaObjects = AutoCreate.All;
-
-    opts.Projections.SelfAggregate<ProviderShiftLive>(ProjectionLifecycle.Live);
-    opts.Projections.SelfAggregate<ProviderShiftInline>(ProjectionLifecycle.Inline);
-    opts.Projections.SelfAggregate<ProviderShiftAsync>(ProjectionLifecycle.Async);
-}).AddAsyncDaemon(DaemonMode.HotCold);
+builder.Services.AddExampleMarten();
 
 var app = builder.Build();
 
