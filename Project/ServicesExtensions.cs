@@ -19,15 +19,13 @@ public static class ServicesExtensions
             opts.Connection(ConnectionString);
             opts.AutoCreateSchemaObjects = AutoCreate.All;
 
-            opts.Projections.SelfAggregate<ProviderShift.ProviderShiftLive>
-                (ProjectionLifecycle.Live);
-            opts.Projections.SelfAggregate<ProviderShift.ProviderShiftInline>
-                (ProjectionLifecycle.Inline);
-            opts.Projections.SelfAggregate<ProviderShift.ProviderShiftAsync>
-                (ProjectionLifecycle.Async);
-            opts.Projections.SelfAggregate<Projections.AnotherProjection>
-                (ProjectionLifecycle.Async);
-            
+            opts.Projections.LiveStreamAggregation<ProviderShift.ProviderShiftLive>();
+            opts.Projections.Snapshot<ProviderShift.ProviderShiftInline>
+                (SnapshotLifecycle.Inline);
+            opts.Projections.Snapshot<ProviderShift.ProviderShiftAsync>
+                (SnapshotLifecycle.Async);
+            opts.Projections.Snapshot<Projections.AnotherProjection>
+                (SnapshotLifecycle.Async);
         });
         
         result.AddAsyncDaemon(DaemonMode.HotCold);

@@ -7,9 +7,8 @@ public class ProviderShiftLive
     public Guid BoardId { get; protected set; }
     public Guid ProviderId { get; init; }
     public ProviderStatus Status { get; protected set; }
-    public string Name { get; init; }
+    public string Name { get; init; } = default!;
     public Guid? AppointmentId { get; set; }
-
     public static ProviderShiftLive Create(ProviderJoined joined)
     {
         return new ProviderShiftLive

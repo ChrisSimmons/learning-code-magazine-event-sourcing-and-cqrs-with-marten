@@ -1,5 +1,4 @@
 using Marten;
-using Marten.Events.Daemon;
 using Microsoft.AspNetCore.Mvc;
 using Project;
 using Project.Projections;
@@ -12,8 +11,8 @@ namespace WebAPI.Controllers;
 public class ProviderShiftAsyncController : ControllerBase
 {
     private readonly IDocumentStore _documentStore;
-    private readonly Guid KnownProvider1 = new("DC35FB28-3CD1-4C78-A3A5-A9CABA9C23B5");
-    private readonly Guid KnownProvider2 = new("760DDBE1-EEF7-42E1-BCA8-FC2DAC827C03");
+    private readonly Guid _knownProvider1 = new("DC35FB28-3CD1-4C78-A3A5-A9CABA9C23B5");
+    private readonly Guid _knownProvider2 = new("760DDBE1-EEF7-42E1-BCA8-FC2DAC827C03");
 
     public ProviderShiftAsyncController(IDocumentStore documentStore)
     {
@@ -25,7 +24,7 @@ public class ProviderShiftAsyncController : ControllerBase
     {
         var session = _documentStore.LightweightSession();
         var shift = session.Events.StartStream<ProviderShiftAsync>(
-            new ProviderJoined(Guid.NewGuid(), KnownProvider2),
+            new ProviderJoined(Guid.NewGuid(), _knownProvider2),
             new ProviderReady()
         );
 
@@ -55,7 +54,7 @@ public class ProviderShiftAsyncController : ControllerBase
     public async Task<IActionResult> ResetProjections()
     {
         var daemon = await _documentStore.BuildProjectionDaemonAsync();
-        await daemon.RebuildProjection<AnotherProjection>(CancellationToken.None);
+        await daemon.RebuildProjectionAsync<AnotherProjection>(CancellationToken.None);
         return NoContent();
     }
 }
