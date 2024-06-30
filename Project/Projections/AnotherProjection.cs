@@ -3,7 +3,8 @@ namespace Project.Projections;
 public class AnotherProjection
 {
     public Guid Id { get; set; }
-    public string SomeProperty { get; private set; }
+    
+    public string SomeProperty { get; private set; } = default!;
 
     public void Apply(ProviderReady @event)
     {

@@ -3,7 +3,7 @@ namespace Project.ProviderShift;
 // There's no difference here between 
 public class ProviderShiftAsync : ProviderShiftLive
 {
-    public static ProviderShiftAsync Create(ProviderJoined joined)
+    public new static ProviderShiftAsync Create(ProviderJoined joined)
     {
         return new ProviderShiftAsync
         {
